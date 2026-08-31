@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini App</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loader-content">
+                <div class="loader-logo">
+                    <div class="pulse-ring"></div>
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="28" stroke="url(#grad)" stroke-width="3"/>
+                        <path d="M20 30L27 37L40 23" stroke="url(#grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs><linearGradient id="grad" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#00D4FF"/><stop offset="1" stop-color="#7B2FF7"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <h2 class="loader-title">Loading...</h2>
+            </div>
+        </div>
+
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="screen hidden">
+            <div class="auth-container">
+                <div class="auth-logo">
+                    <div class="auth-logo-bg">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                            <circle cx="40" cy="40" r="38" stroke="url(#authGrad)" stroke-width="3"/>
+                            <path d="M25 40L35 50L55 28" stroke="url(#authGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs><linearGradient id="authGrad" x1="0" y1="0" x2="80" y2="80"><stop stop-color="#00D4FF"/><stop offset="1" stop-color="#7B2FF7"/></linearGradient></defs>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="auth-title">Welcome to Mini App</h1>
+                <p class="auth-subtitle">Earn rewards by completing tasks, watching ads & more!</p>
+                <button id="telegram-login-btn" class="btn-telegram" onclick="loginWithTelegram()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Login with Telegram
+                </button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="screen hidden">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">
+                        <span id="avatar-letter">U</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="user-name">User</h3>
+                        <span class="user-id" id="user-id">ID: ---</span>
+                    </div>
+                </div>
+                <div class="balance-display">
+                    <div class="coin-icon">💎</div>
+                    <span id="balance-display">0</span>
+                </div>
+            </div>
+
+            <!-- Pages Container -->
+            <div class="pages-container">
+                <!-- HOME PAGE -->
+                <div id="page-home" class="page active">
+                    <div class="page-header">
+                        <h2>Dashboard</h2>
+                        <p class="greeting" id="greeting-text">Good morning!</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-balance">0</span>
+                                <span class="stat-label">Balance</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-tasks-done">0</span>
+                                <span class="stat-label">Tasks Done</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-referrals">0</span>
+                                <span class="stat-label">Referrals</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-streak">0</span>
+                                <span class="stat-label">Day Streak</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Check-in -->
+                    <div class="section-card daily-checkin-card" id="daily-card">
+                        <div class="section-header">
+                            <h3>📅 Daily Check-in</h3>
+                            <span class="streak-badge" id="streak-badge">🔥 0 days</span>
+                        </div>
+                        <div class="checkin-days" id="checkin-days">
+                            <!-- Generated by JS -->
+                        </div>
+                        <button class="btn-checkin" id="btn-checkin" onclick="claimDailyCheckin()">
+                            Check In & Earn <span id="checkin-reward">10</span> 💎
+                        </button>
+                    </div>
+
+                    <!-- Tap Section -->
+                    <div class="section-card tap-section">
+                        <div class="section-header">
+                            <h3>👆 Tap to Earn</h3>
+                            <span class="tap-counter"><span id="taps-left">50</span>/50 taps</span>
+                        </div>
+                        <div class="tap-area" id="tap-area" onclick="handleTap(event)">
+                            <div class="tap-coin">
+                                <div class="coin-glow"></div>
+                                <span class="coin-emoji">💎</span>
+                            </div>
+                            <p class="tap-hint">Tap the coin!</p>
+                        </div>
+                        <div class="tap-info">
+                            <span>Each tap: +1 💎</span>
+                            <span>Resets in: <span id="tap-reset-timer">--:--</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TASKS PAGE -->
+                <div id="page-tasks" class="page">
+                    <div class="page-header">
+                        <h2>Tasks</h2>
+                        <p>Complete tasks to earn rewards</p>
+                    </div>
+
+                    <div class="task-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="social">Social</button>
+                        <button class="filter-btn" data-filter="visit">Visit</button>
+                        <button class="filter-btn" data-filter="special">Special</button>
+                    </div>
+
+                    <div class="tasks-list" id="tasks-list">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- ADS PAGE -->
+                <div id="page-ads" class="page">
+                    <div class="page-header">
+                        <h2>Watch & Earn</h2>
+                        <p>Watch ads to earn rewards</p>
+                    </div>
+
+                    <div class="ads-stats">
+                        <div class="ad-stat-card">
+                            <span class="ad-stat-value" id="ads-today">0</span>
+                            <span class="ad-stat-label">Watched Today</span>
+                        </div>
+                        <div class="ad-stat-card">
+                            <span class="ad-stat-value" id="ads-limit">10</span>
+                            <span class="ad-stat-label">Daily Limit</span>
+                        </div>
+                        <div class="ad-stat-card">
+                            <span class="ad-stat-value" id="ads-reward">5</span>
+                            <span class="ad-stat-label">Per Ad 💎</span>
+                        </div>
+                    </div>
+
+                    <div class="ads-list" id="ads-list">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- REFERRAL PAGE -->
+                <div id="page-referral" class="page">
+                    <div class="page-header">
+                        <h2>Referrals</h2>
+                        <p>Invite friends & earn together</p>
+                    </div>
+
+                    <div class="referral-hero">
+                        <div class="referral-icon">🎁</div>
+                        <h3>Earn Together!</h3>
+                        <p>Invite friends and earn bonus rewards for each referral</p>
+                    </div>
+
+                    <div class="referral-stats-row">
+                        <div class="ref-stat">
+                            <span class="ref-stat-val" id="total-referred">0</span>
+                            <span class="ref-stat-label">Total Referred</span>
+                        </div>
+                        <div class="ref-stat">
+                            <span class="ref-stat-val" id="ref-earnings">0</span>
+                            <span class="ref-stat-label">Referral Earnings</span>
+                        </div>
+                    </div>
+
+                    <div class="referral-link-section">
+                        <p class="ref-label">Your Referral Link</p>
+                        <div class="ref-link-box">
+                            <input type="text" id="referral-link" readonly value="Loading...">
+                            <button class="btn-copy" onclick="copyReferral()">Copy</button>
+                        </div>
+                        <p class="ref-reward-info">You get <strong>100💎</strong> per referral | They get <strong>50💎</strong></p>
+                    </div>
+
+                    <div class="referral-list-section">
+                        <h3>Your Referrals</h3>
+                        <div class="referral-list" id="referral-list">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE PAGE -->
+                <div id="page-profile" class="page">
+                    <div class="page-header">
+                        <h2>Profile</h2>
+                    </div>
+
+                    <div class="profile-card">
+                        <div class="profile-avatar" id="profile-avatar">
+                            <span id="profile-avatar-letter">U</span>
+                        </div>
+                        <h3 id="profile-name">User</h3>
+                        <p class="profile-id" id="profile-id">ID: ---</p>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="ps-val" id="ps-balance">0</span>
+                            <span class="ps-label">💎 Balance</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="ps-val" id="ps-tasks">0</span>
+                            <span class="ps-label">🎯 Tasks</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="ps-val" id="ps-refs">0</span>
+                            <span class="ps-label">👥 Referrals</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-menu">
+                        <div class="menu-item" onclick="showLeaderboard()">
+                            <span class="menu-icon">🏆</span>
+                            <span class="menu-text">Leaderboard</span>
+                            <span class="menu-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="showSupport()">
+                            <span class="menu-icon">💬</span>
+                            <span class="menu-text">Support</span>
+                            <span class="menu-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="showAbout()">
+                            <span class="menu-icon">ℹ️</span>
+                            <span class="menu-text">About</span>
+                            <span class="menu-arrow">›</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <button class="nav-item active" data-page="home" onclick="switchPage('home')">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" data-page="tasks" onclick="switchPage('tasks')">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+                    <span>Tasks</span>
+                </button>
+                <button class="nav-item" data-page="ads" onclick="switchPage('ads')">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15l3.5-4.5 2.5 3.01L14.5 9 19 15H5z"/></svg>
+                    <span>Watch</span>
+                </button>
+                <button class="nav-item" data-page="referral" onclick="switchPage('referral')">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span>Invite</span>
+                </button>
+                <button class="nav-item" data-page="profile" onclick="switchPage('profile')">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span>Profile</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3 id="modal-title">Title</h3>
+                    <button class="modal-close" onclick="closeModal()">✕</button>
+                </div>
+                <div class="modal-body" id="modal-body"></div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="toast hidden">
+            <span id="toast-text">Notification</span>
+        </div>
+
+        <!-- Particle Container for tap effects -->
+        <div id="particles" class="particles-container"></div>
+    </div>
+
+    <!-- Firebase SDK (only Firestore needed, no Auth) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mini App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --bg2: #111827;
+            --bg3: #1a2035;
+            --bg4: #1f2847;
+            --text: #fff;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --blue: #00D4FF;
+            --purple: #7B2FF7;
+            --green: #22C55E;
+            --yellow: #FBBF24;
+            --red: #EF4444;
+            --orange: #F97316;
+            --border: rgba(255,255,255,0.06);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+        .admin-layout { display:flex; min-height:100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+            margin-bottom: 32px;
+        }
+        .sidebar-logo-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800; color: white;
+        }
+        .sidebar-logo-text { font-size: 18px; font-weight: 800; }
+
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text3); padding: 0 12px; margin-bottom: 8px;
+        }
+        .sidebar-nav { list-style: none; }
+        .sidebar-nav li a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; border-radius: var(--radius-sm);
+            color: var(--text2); text-decoration: none;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .sidebar-nav li a:hover, .sidebar-nav li a.active {
+            background: rgba(255,255,255,0.06);
+            color: var(--blue);
+        }
+        .sidebar-nav li a.active::before {
+            content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+            width: 3px; border-radius: 0 3px 3px 0;
+            background: linear-gradient(var(--blue), var(--purple));
+        }
+        .nav-icon { width: 20px; height: 20px; }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 24px;
+        }
+
+        .page-title {
+            font-size: 24px; font-weight: 800; margin-bottom: 24px;
+        }
+
+        /* Stats Grid */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .admin-stat-card {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .admin-stat-card .label {
+            font-size: 12px; color: var(--text3);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+        }
+        .admin-stat-card .value {
+            font-size: 28px; font-weight: 800;
+        }
+        .admin-stat-card .value.blue { color: var(--blue); }
+        .admin-stat-card .value.green { color: var(--green); }
+        .admin-stat-card .value.yellow { color: var(--yellow); }
+        .admin-stat-card .value.purple { color: var(--purple); }
+
+        /* Cards */
+        .admin-card {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .admin-card h3 {
+            font-size: 16px; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Form */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block; font-size: 13px; font-weight: 600;
+            color: var(--text2); margin-bottom: 6px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text); font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none; transition: border 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--blue);
+        }
+        .form-textarea { min-height: 80px; resize: vertical; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; display: inline-flex;
+            align-items: center; gap: 8px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+        }
+        .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); }
+        .btn-success { background: rgba(34,197,94,0.15); color: var(--green); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-block { width: 100%; justify-content: center; }
+
+        /* Table */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 12px 16px; text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        th {
+            color: var(--text3); text-transform: uppercase;
+            font-size: 11px; letter-spacing: 0.5px; font-weight: 600;
+        }
+        td { color: var(--text2); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Tabs */
+        .admin-tabs {
+            display: flex; gap: 4px; margin-bottom: 24px;
+            background: var(--bg2); padding: 4px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .admin-tab {
+            padding: 10px 20px; border: none; border-radius: 8px;
+            background: transparent; color: var(--text2);
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .admin-tab.active {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Search */
+        .search-box {
+            position: relative; margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 100%; padding: 12px 16px 12px 44px;
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); color: var(--text);
+            font-size: 14px; outline: none;
+        }
+        .search-box input:focus { border-color: var(--blue); }
+        .search-icon {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: var(--text3);
+        }
+
+        /* User Card */
+        .user-card {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px; background: var(--bg4);
+            border-radius: var(--radius-sm); margin-bottom: 8px;
+        }
+        .user-avatar {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: white; flex-shrink: 0;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .user-info p { font-size: 12px; color: var(--text3); }
+        .user-actions { display: flex; gap: 8px; }
+
+        /* Toast */
+        .admin-toast {
+            position: fixed; top: 24px; right: 24px;
+            padding: 14px 20px; background: var(--bg3);
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal */
+        .admin-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500; padding: 24px; backdrop-filter: blur(4px);
+        }
+        .admin-modal {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: var(--radius); width: 100%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .admin-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
+        }
+        .admin-modal-header h3 { font-size: 17px; font-weight: 700; }
+        .admin-modal-close {
+            width: 32px; height: 32px; border-radius: 8px;
+            border: none; background: rgba(255,255,255,0.06);
+            color: var(--text2); font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .admin-modal-body { padding: 20px; }
+
+        /* Toggle */
+        .toggle-switch {
+            position: relative; width: 48px; height: 26px; cursor: pointer;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; background: var(--bg4);
+            border-radius: 13px; transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute; left: 3px; top: 3px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: white; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--blue); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+        /* Login */
+        .admin-login {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 24px;
+        }
+        .login-card {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 40px 32px;
+            width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-card h2 {
+            font-size: 22px; font-weight: 800; margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .login-card p { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+
+        /* Mobile */
+        .mobile-header {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 12px 16px; background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            z-index: 90; align-items: center; gap: 12px;
+        }
+        .menu-toggle {
+            width: 36px; height: 36px; border-radius: 8px;
+            border: none; background: rgba(255,255,255,0.06);
+            color: var(--text); font-size: 18px; cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .mobile-header { display: flex; }
+            .main-content { margin-left: 0; padding-top: 64px; }
+            .form-row { grid-template-columns: 1fr; }
+            .admin-stats { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Logout button */
+        .sidebar-footer {
+            position: absolute; bottom: 16px; left: 16px; right: 16px;
+            padding-top: 16px; border-top: 1px solid var(--border);
+        }
+        .sidebar-footer .btn { width: 100%; justify-content: center; }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="admin-login" class="admin-login">
+        <div class="login-card">
+            <div style="font-size:40px; margin-bottom:16px;">🛡️</div>
+            <h2>Admin Panel</h2>
+            <p>Enter admin password to continue</p>
+            <div class="form-group" style="text-align:left;">
+                <label class="form-label">Password</label>
+                <input type="password" id="admin-password" class="form-input"
+                    placeholder="Enter admin password" onkeypress="if(event.key==='Enter')adminLogin()">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="adminLogin()" style="margin-top:8px;">
+                Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" style="display:none;">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <span style="font-weight:700;">Admin Panel</span>
+        </div>
+
+        <div class="admin-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">A</div>
+                    <span class="sidebar-logo-text">Admin</span>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <ul class="sidebar-nav">
+                        <li><a class="active" onclick="showTab('dashboard')" data-tab="dashboard">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                            Dashboard
+                        </a></li>
+                        <li><a onclick="showTab('users')" data-tab="users">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            Users
+                        </a></li>
+                        <li><a onclick="showTab('referrals')" data-tab="referrals">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                            Referrals
+                        </a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Manage</div>
+                    <ul class="sidebar-nav">
+                        <li><a onclick="showTab('settings')" data-tab="settings">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            Settings
+                        </a></li>
+                        <li><a onclick="showTab('tasks-mgr')" data-tab="tasks-mgr">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+                            Tasks Manager
+                        </a></li>
+                        <li><a onclick="showTab('broadcast')" data-tab="broadcast">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z"/></svg>
+                            Broadcast
+                        </a></li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button class="btn btn-danger btn-sm" onclick="adminLogout()">Logout</button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="tab-content active">
+                    <h1 class="page-title">Dashboard</h1>
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <div class="label">Total Users</div>
+                            <div class="value blue" id="total-users">0</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="label">Active Today</div>
+                            <div class="value green" id="active-today">0</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="label">Total Earned</div>
+                            <div class="value yellow" id="total-earned">0</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="label">Total Referrals</div>
+                            <div class="value purple" id="total-refs">0</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>📊 Recent Activity</h3>
+                        <div id="recent-activity" style="color:var(--text2); font-size:13px;">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="tab-users" class="tab-content">
+                    <h1 class="page-title">User Management</h1>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search by name, username, or ID..." id="user-search" oninput="searchUsers()">
+                    </div>
+                    <div class="admin-card">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>ID</th>
+                                        <th>Balance</th>
+                                        <th>Tasks</th>
+                                        <th>Refs</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table">
+                                    <tr><td colspan="7" style="text-align:center;">Loading users...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referrals Tab -->
+                <div id="tab-referrals" class="tab-content">
+                    <h1 class="page-title">Referrals</h1>
+                    <div class="admin-card">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Referrer</th>
+                                        <th>Referred</th>
+                                        <th>Reward</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="referrals-table">
+                                    <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="tab-settings" class="tab-content">
+                    <h1 class="page-title">App Settings</h1>
+                    <div class="admin-card">
+                        <h3>💰 Coin Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Coin per Tap</label>
+                                <input type="number" class="form-input" id="set-coin-tap" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Taps per Round</label>
+                                <input type="number" class="form-input" id="set-max-taps" value="50">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Tap Reset (minutes)</label>
+                                <input type="number" class="form-input" id="set-tap-reset" value="30">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ad Reward (💎)</label>
+                                <input type="number" class="form-input" id="set-ad-reward" value="5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>📅 Daily Check-in</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Base Reward</label>
+                                <input type="number" class="form-input" id="set-daily-base" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Streak Bonus</label>
+                                <input type="number" class="form-input" id="set-daily-max" value="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>👥 Referral Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Referrer Reward (💎)</label>
+                                <input type="number" class="form-input" id="set-ref-reward" value="100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New User Bonus (💎)</label>
+                                <input type="number" class="form-input" id="set-ref-bonus" value="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>📺 Ad Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Daily Ad Limit</label>
+                                <input type="number" class="form-input" id="set-ad-limit" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ad Duration (sec)</label>
+                                <input type="number" class="form-input" id="set-ad-duration" value="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveSettings()">Save All Settings</button>
+                </div>
+
+                <!-- Tasks Manager Tab -->
+                <div id="tab-tasks-mgr" class="tab-content">
+                    <h1 class="page-title">Tasks Manager</h1>
+                    <div class="admin-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="margin-bottom:0;">📋 Task List</h3>
+                            <button class="btn btn-primary btn-sm" onclick="showAddTaskModal()">+ Add Task</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Category</th>
+                                        <th>Reward</th>
+                                        <th>Link</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tasks-table">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Broadcast Tab -->
+                <div id="tab-broadcast" class="tab-content">
+                    <h1 class="page-title">Broadcast Message</h1>
+                    <div class="admin-card">
+                        <h3>📢 Send Message to All Users</h3>
+                        <div class="form-group">
+                            <label class="form-label">Message Title</label>
+                            <input type="text" class="form-input" id="broadcast-title" placeholder="Enter title...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message Body</label>
+                            <textarea class="form-textarea" id="broadcast-body" placeholder="Enter message..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="sendBroadcast()">Send to All Users</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="admin-toast" class="admin-toast" style="display:none;"></div>
+    <div id="admin-modal-overlay" class="admin-modal-overlay" style="display:none;" onclick="closeAdminModal()">
+        <div class="admin-modal" onclick="event.stopPropagation()">
+            <div class="admin-modal-header">
+                <h3 id="admin-modal-title">Title</h3>
+                <button class="admin-modal-close" onclick="closeAdminModal()">✕</button>
+            </div>
+            <div class="admin-modal-body" id="admin-modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script>
+        const ADMIN_PASSWORD = 'admin123';
+
+        // Admin Login
+        function adminLogin() {
+            const pass = document.getElementById('admin-password').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+                loadDashboard();
+            } else {
+                adminToast('Wrong password!');
+            }
+        }
+
+        function adminLogout() {
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('admin-login').style.display = 'flex';
+            document.getElementById('admin-password').value = '';
+        }
+
+        // Tab Navigation
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+            // Load data
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'users') loadUsers();
+            if (tab === 'referrals') loadReferralsAdmin();
+            if (tab === 'tasks-mgr') loadTasksAdmin();
+
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const snapshot = await db.collection('users').get();
+                const users = snapshot.docs.map(d => d.data());
+
+                document.getElementById('total-users').textContent = users.length;
+
+                const today = new Date().toDateString();
+                const activeToday = users.filter(u => u.lastActive && new Date(u.lastActive).toDateString() === today).length;
+                document.getElementById('active-today').textContent = activeToday;
+
+                const totalEarned = users.reduce((sum, u) => sum + (u.totalEarned || 0), 0);
+                document.getElementById('total-earned').textContent = formatNum(totalEarned);
+
+                const totalRefs = users.reduce((sum, u) => sum + (u.totalReferrals || 0), 0);
+                document.getElementById('total-refs').textContent = totalRefs;
+
+                // Recent activity
+                const recent = users.sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0)).slice(0, 10);
+                const activityHtml = recent.map(u => `
+                    <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border);">
+                        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;">${(u.firstName||'U').charAt(0)}</div>
+                        <div style="flex:1;"><b>${u.firstName || 'User'}</b> <span style="color:var(--text3);font-size:12px;">${u.username ? '@' + u.username : ''}</span></div>
+                        <span style="font-size:12px;color:var(--text3);">${u.lastActive ? timeAgo(u.lastActive) : 'Never'}</span>
+                    </div>
+                `).join('');
+                document.getElementById('recent-activity').innerHTML = activityHtml || 'No activity yet';
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Users
+        let allUsers = [];
+        async function loadUsers() {
+            try {
+                const snapshot = await db.collection('users').get();
+                allUsers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderUsers(allUsers);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-table');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No users found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;">${(u.firstName||'U').charAt(0)}</div>
+                            <div>
+                                <b>${u.firstName || 'User'}</b>
+                                <div style="font-size:11px;color:var(--text3);">${u.username ? '@' + u.username : ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:12px;">${u.id}</td>
+                    <td><b>${formatNum(u.balance || 0)}</b> 💎</td>
+                    <td>${(u.completedTasks || []).length}</td>
+                    <td>${u.totalReferrals || 0}</td>
+                    <td>${u.isBanned ? '<span style="color:var(--red)">Banned</span>' : '<span style="color:var(--green)">Active</span>'}</td>
+                    <td>
+                        <div style="display:flex;gap:4px;">
+                            <button class="btn btn-primary btn-sm" onclick="editUser('${u.id}')">Edit</button>
+                            <button class="btn btn-${u.isBanned ? 'success' : 'danger'} btn-sm" onclick="toggleBan('${u.id}', ${!u.isBanned})">${u.isBanned ? 'Unban' : 'Ban'}</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchUsers() {
+            const q = document.getElementById('user-search').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                (u.firstName || '').toLowerCase().includes(q) ||
+                (u.username || '').toLowerCase().includes(q) ||
+                (u.id || '').includes(q)
+            );
+            renderUsers(filtered);
+        }
+
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            showAdminModal('Edit User', `
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="edit-name" value="${user.firstName || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Balance</label>
+                    <input type="number" class="form-input" id="edit-balance" value="${user.balance || 0}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Earned</label>
+                    <input type="number" class="form-input" id="edit-earned" value="${user.totalEarned || 0}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Daily Streak</label>
+                    <input type="number" class="form-input" id="edit-streak" value="${user.dailyStreak || 0}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Referrals</label>
+                    <input type="number" class="form-input" id="edit-refs" value="${user.totalReferrals || 0}">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="saveUserEdit('${userId}')">Save Changes</button>
+            `);
+        }
+
+        async function saveUserEdit(userId) {
+            try {
+                await db.collection('users').doc(userId).update({
+                    firstName: document.getElementById('edit-name').value,
+                    balance: parseInt(document.getElementById('edit-balance').value) || 0,
+                    totalEarned: parseInt(document.getElementById('edit-earned').value) || 0,
+                    dailyStreak: parseInt(document.getElementById('edit-streak').value) || 0,
+                    totalReferrals: parseInt(document.getElementById('edit-refs').value) || 0,
+                });
+                closeAdminModal();
+                adminToast('User updated!');
+                loadUsers();
+            } catch (error) {
+                adminToast('Error updating user');
+            }
+        }
+
+        async function toggleBan(userId, ban) {
+            try {
+                await db.collection('users').doc(userId).update({ isBanned: ban });
+                adminToast(ban ? 'User banned' : 'User unbanned');
+                loadUsers();
+            } catch (error) {
+                adminToast('Error');
+            }
+        }
+
+        // Referrals
+        async function loadReferralsAdmin() {
+            try {
+                const snapshot = await db.collection('referrals').orderBy('createdAt', 'desc').limit(100).get();
+                const refs = snapshot.docs.map(d => d.data());
+                const tbody = document.getElementById('referrals-table');
+                if (refs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No referrals yet</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = refs.map(r => `
+                    <tr>
+                        <td>${r.referrerId || 'N/A'}</td>
+                        <td>${r.referredName || 'Unknown'}</td>
+                        <td>${r.reward || 0} 💎</td>
+                        <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Tasks Manager
+        function loadTasksAdmin() {
+            const tasks = JSON.parse(localStorage.getItem('adminTasks') || '[]');
+            const defaultTasks = [
+                { id: 'task1', name: 'Join our Channel', category: 'social', reward: 50, link: 'https://t.me/yourchannel' },
+                { id: 'task2', name: 'Follow on Twitter', category: 'social', reward: 30, link: 'https://twitter.com/' },
+                { id: 'task3', name: 'Join Group Chat', category: 'social', reward: 40, link: 'https://t.me/' },
+                { id: 'task4', name: 'Visit Website', category: 'visit', reward: 20, link: 'https://yoursite.com' },
+                { id: 'task5', name: 'Subscribe YouTube', category: 'social', reward: 35, link: 'https://youtube.com/' },
+            ];
+            const allTasks = [...defaultTasks, ...tasks];
+
+            const tbody = document.getElementById('tasks-table');
+            tbody.innerHTML = allTasks.map(t => `
+                <tr>
+                    <td><b>${t.name}</b></td>
+                    <td>${t.category}</td>
+                    <td>${t.reward} 💎</td>
+                    <td><a href="${t.link}" target="_blank" style="color:var(--blue);font-size:12px;">${t.link}</a></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="removeTask('${t.id}')">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showAddTaskModal() {
+            showAdminModal('Add New Task', `
+                <div class="form-group">
+                    <label class="form-label">Task Name</label>
+                    <input type="text" class="form-input" id="new-task-name" placeholder="Task name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" id="new-task-desc" placeholder="Description">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="new-task-cat">
+                            <option value="social">Social</option>
+                            <option value="visit">Visit</option>
+                            <option value="special">Special</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reward (💎)</label>
+                        <input type="number" class="form-input" id="new-task-reward" value="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Link</label>
+                    <input type="url" class="form-input" id="new-task-link" placeholder="https://...">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="addTask()">Add Task</button>
+            `);
+        }
+
+        function addTask() {
+            const tasks = JSON.parse(localStorage.getItem('adminTasks') || '[]');
+            const icons = { social: '📢', visit: '🌐', special: '⭐' };
+            const cat = document.getElementById('new-task-cat').value;
+            const newTask = {
+                id: 'task_' + Date.now(),
+                name: document.getElementById('new-task-name').value,
+                desc: document.getElementById('new-task-desc').value,
+                icon: icons[cat] || '📋',
+                category: cat,
+                reward: parseInt(document.getElementById('new-task-reward').value) || 50,
+                type: cat,
+                link: document.getElementById('new-task-link').value || '#'
+            };
+            tasks.push(newTask);
+            localStorage.setItem('adminTasks', JSON.stringify(tasks));
+            closeAdminModal();
+            loadTasksAdmin();
+            adminToast('Task added!');
+        }
+
+        function removeTask(taskId) {
+            let tasks = JSON.parse(localStorage.getItem('adminTasks') || '[]');
+            tasks = tasks.filter(t => t.id !== taskId);
+            localStorage.setItem('adminTasks', JSON.stringify(tasks));
+            loadTasksAdmin();
+            adminToast('Task removed');
+        }
+
+        // Settings
+        function saveSettings() {
+            const settings = {
+                coinPerTap: parseInt(document.getElementById('set-coin-tap').value),
+                maxTapsPerRound: parseInt(document.getElementById('set-max-taps').value),
+                tapResetMinutes: parseInt(document.getElementById('set-tap-reset').value),
+                dailyCheckinBase: parseInt(document.getElementById('set-daily-base').value),
+                dailyCheckinMaxBonus: parseInt(document.getElementById('set-daily-max').value),
+                referralReward: parseInt(document.getElementById('set-ref-reward').value),
+                referralBonus: parseInt(document.getElementById('set-ref-bonus').value),
+                adReward: parseInt(document.getElementById('set-ad-reward').value),
+                adDailyLimit: parseInt(document.getElementById('set-ad-limit').value),
+                adDuration: parseInt(document.getElementById('set-ad-duration').value),
+            };
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+            adminToast('Settings saved!');
+        }
+
+        // Broadcast
+        async function sendBroadcast() {
+            const title = document.getElementById('broadcast-title').value;
+            const body = document.getElementById('broadcast-body').value;
+            if (!title || !body) {
+                adminToast('Fill in all fields!');
+                return;
+            }
+            try {
+                await db.collection('broadcasts').add({
+                    title, body,
+                    createdAt: Date.now(),
+                    sentBy: 'admin'
+                });
+                document.getElementById('broadcast-title').value = '';
+                document.getElementById('broadcast-body').value = '';
+                adminToast('Broadcast sent!');
+            } catch (error) {
+                adminToast('Error sending broadcast');
+            }
+        }
+
+        // Utilities
+        function formatNum(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return String(num);
+        }
+
+        function timeAgo(ts) {
+            const diff = Date.now() - ts;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return Math.floor(diff / 86400000) + 'd ago';
+        }
+
+        function adminToast(msg) {
+            const toast = document.getElementById('admin-toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+
+        function showAdminModal(title, body) {
+            document.getElementById('admin-modal-title').textContent = title;
+            document.getElementById('admin-modal-body').innerHTML = body;
+            document.getElementById('admin-modal-overlay').style.display = 'flex';
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal-overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
